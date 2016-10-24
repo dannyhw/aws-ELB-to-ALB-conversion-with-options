@@ -138,7 +138,8 @@ def passed_hardfailure_detector(elb_data):
         else:
             print("Error: The Classic load balancer has 1 enabled subnet.\
  A minimum of 2 subnets is required for an Application Load Balancer.")
-            error = True
+            if input("Would you like to add a subnet later? y/N:").lower() != 'y':
+                error = True
     else:
         print("Error: The Classic load balancer is in EC2-Classic instead of a VPC.\
  A VPC is required for an Application Load Balancer.")
@@ -242,23 +243,44 @@ values because it is reserved for AWS use -- http://docs.aws.amazon.com/AWSEC2/l
     else:
         return True
 
+def addSubnet(elb_data):
+    ec2 = boto3.resource('ec2')
+    subnet = ec2.Subnet(elb_data['LoadBalancerDescriptions'][0]['Subnets'][0])
+    print "Subnet(s) attached to this ELB: ", subnet.id, " ", subnet.tags
+    vpc = ec2.Vpc(elb_data['LoadBalancerDescriptions'][0]['VPCId'])
+    print "all subnets"
+    snet_ids=[]
+    for idx, subnet in enumerate(vpc.subnets.all()):
+        print idx, " ", subnet.id, " ", subnet.tags
+        snet_ids.append(subnet.id)
+    snet_index = int(input("pick number from 0 - {} to add a subnet id to the list: ".format(len(snet_ids)-1)))
+    snet_id = snet_ids[snet_index]
+    print "prior ", elb_data['LoadBalancerDescriptions'][0]['Subnets']
+    print "appending {}".format(snet_id)
+    subnets = elb_data['LoadBalancerDescriptions'][0]['Subnets']
+    subnets.append(snet_id)
+    print subnets
+    return subnets
+
 # render a dictionary which contains Application Load Balancer attributes
-
-
 def get_alb_data(elb_data, region, load_balancer_name):
+    subnets = elb_data['LoadBalancerDescriptions'][0]['Subnets']
+    if len(elb_data['LoadBalancerDescriptions'][0]['Subnets']) < 2:
+        subnets = addSubnet(elb_data)
     if debug:
         print("building the Application Load Balancer data structure")
     # this is used for building the load balancer spec
     alb_data = {'VpcId': elb_data['LoadBalancerDescriptions'][0]['VPCId'], 'Region': region,
                 'Alb_name': elb_data['LoadBalancerDescriptions'][0]['LoadBalancerName'],
-                'Subnets': elb_data['LoadBalancerDescriptions'][0]['Subnets'],
+                'Subnets': subnets,
                 'Security_groups': elb_data['LoadBalancerDescriptions'][0]['SecurityGroups'],
                 'Scheme': elb_data['LoadBalancerDescriptions'][0]['Scheme'],
                 'Tags': elb_data['TagDescriptions'][0]['Tags'],
                 'listeners': [],
                 'target_group_attributes': [],
                 'target_group_arns': []}
-
+    if len(alb_data['Subnets']) < 2:
+        sys.exit(1)
     # this is used for building the listeners specs
     for elb_listener in elb_data['LoadBalancerDescriptions'][0]['ListenerDescriptions']:
         # If there is a LBCookieStickinessPolicy, append TG attriubtes
