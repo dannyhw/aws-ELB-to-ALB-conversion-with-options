@@ -1,6 +1,8 @@
 ## Classic load balancer to Application load balancer copy utility
  
 ### Overview:
+A fork of the elb->alb utility from aws for the purpose of adding some options for non conforming ELB's
+
 Customers can utilize this tool to copy the configuration of their existing Classic load balancer to create a new Application load balancer with the same configuration. Customers can also choose to register their existing backend EC2 instances with the new Application load balancer.
  
 ### Usage:
