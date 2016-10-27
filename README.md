@@ -7,6 +7,12 @@ Currently only has the option for adding a subnet for elbs with only one subnet.
 Customers can utilize this tool to copy the configuration of their existing Classic load balancer to create a new Application load balancer with the same configuration. Customers can also choose to register their existing backend EC2 instances with the new Application load balancer.
  
 ### Usage:
+To run for all ELBs.
+Edit the bash file to change the region. An empty string will remove the arg.
+```
+./run_for_all.sh [--dry-run]
+```
+
 ```
 copy_classic_load_balancer.py
 --name <value>
