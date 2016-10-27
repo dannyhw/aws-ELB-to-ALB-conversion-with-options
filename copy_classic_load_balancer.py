@@ -118,7 +118,7 @@ def get_elb_data(elb_name, region):
 
 
 # Define hard failure cases
-def passed_hardfailure_detector(elb_data):
+def passed_hardfailure_detector(elb_data, dry_run=False):
     if debug:
         print("Checking hard failure detector")
     # if there are any errors below we will change this to True, else continue
@@ -138,7 +138,7 @@ def passed_hardfailure_detector(elb_data):
         else:
             print("Error: The Classic load balancer has 1 enabled subnet.\
  A minimum of 2 subnets is required for an Application Load Balancer.")
-            if input("Would you like to add a subnet later? y/N:").lower() != 'y':
+            if not dry_run and input("Would you like to add a subnet later? y/N:").lower() != 'y':
                 error = True
     else:
         print("Error: The Classic load balancer is in EC2-Classic instead of a VPC.\
@@ -577,7 +577,7 @@ with Application Load Balancers, but do not perform create operations",
             load_balancer_name, region))
         sys.exit(1)
     # # validate known failure scenarios
-    if passed_hardfailure_detector(elb_data):
+    if passed_hardfailure_detector(elb_data, args.dry_run):
         if passed_softfailure_detector(elb_data):
             # quit early for dry run operation
             if args.dry_run:
