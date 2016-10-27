@@ -12,6 +12,7 @@ Edit the bash file to change the region. An empty string will remove the arg.
 ```
 ./run_for_all.sh [--dry-run]
 ```
+*Currently the default region is still used for the all elbs python script used by run_for_all, however I plan to change that.*
 
 ```
 copy_classic_load_balancer.py
