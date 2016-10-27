@@ -2,6 +2,7 @@
  
 ### Overview:
 A fork of the elb->alb utility from aws for the purpose of adding some options for non conforming ELB's
+Currently only has the option for adding a subnet for elbs with only one subnet. Displays a list of subnets within the same VPN as the existing subnet and the user can choose from the list.
 
 Customers can utilize this tool to copy the configuration of their existing Classic load balancer to create a new Application load balancer with the same configuration. Customers can also choose to register their existing backend EC2 instances with the new Application load balancer.
  
